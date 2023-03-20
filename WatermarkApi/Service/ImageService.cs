@@ -1,3 +1,5 @@
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,9 +49,33 @@ namespace WatermarkApi.Service
             }
 
             using var resultStream = new MemoryStream();
-         
+    
+            // Load image and watermark into Bitmap objects
+            using var imageBitmap = new Bitmap(new MemoryStream(image.Data));
+            using var watermarkBitmap = new Bitmap(new MemoryStream(watermark.Data));
+    
+            // Create a new Bitmap with the same dimensions as the original image
+            using var resultBitmap = new Bitmap(imageBitmap.Width, imageBitmap.Height);
+
+            // Create a new Graphics object from the new Bitmap
+            using var graphics = Graphics.FromImage(resultBitmap);
+
+            // Draw the original image onto the new Bitmap
+            graphics.DrawImage(imageBitmap, 0, 0);
+
+            // Determine the position of the watermark in the bottom-right corner of the image
+            var watermarkX = resultBitmap.Width - watermarkBitmap.Width;
+            var watermarkY = resultBitmap.Height - watermarkBitmap.Height;
+
+            // Draw the watermark onto the new Bitmap
+            graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);
+
+            // Save the new Bitmap to the stream as a JPEG
+            resultBitmap.Save(resultStream, ImageFormat.Jpeg);
+
             return resultStream.ToArray();
         }
+
        
 
     }
