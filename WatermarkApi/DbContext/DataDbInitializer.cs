@@ -1,7 +1,5 @@
 namespace WatermarkApi.DbContext;
-
-
-    public class DataDbInitializer
+public class DataDbInitializer
     {
         public static void Initialize(IServiceProvider serviceProvider)
         {
