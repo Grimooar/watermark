@@ -63,12 +63,20 @@ namespace WatermarkApi.Service
             // Draw the original image onto the new Bitmap
             graphics.DrawImage(imageBitmap, 0, 0);
 
+            //Ќанесение вод€ного знака по всей картинке
+            for (int watermarkY = 0; watermarkY <= resultBitmap.Height; watermarkY += watermarkBitmap.Height)
+            {
+                for (int watermarkX = 0; watermarkX <= resultBitmap.Width; watermarkX += watermarkBitmap.Width)
+                {
+                    graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);
+                }
+            }
             // Determine the position of the watermark in the bottom-right corner of the image
-            var watermarkX = resultBitmap.Width - watermarkBitmap.Width;
-            var watermarkY = resultBitmap.Height - watermarkBitmap.Height;
+            /*var watermarkX = resultBitmap.Width - watermarkBitmap.Width;
+            var watermarkY = resultBitmap.Height - watermarkBitmap.Height;*/
 
             // Draw the watermark onto the new Bitmap
-            graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);
+            /*graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);*/
 
             // Save the new Bitmap to the stream as a JPEG
             resultBitmap.Save(resultStream, ImageFormat.Jpeg);
