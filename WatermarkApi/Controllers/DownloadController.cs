@@ -18,6 +18,10 @@ public class DownloadController : ControllerBase
     public async Task<IActionResult> Download(int imageId, int watermarkId)
     {
         var result = await _imageService.ApplyWatermarkAsync(imageId, watermarkId);
+        if (result == null)
+        {
+            return NotFound();
+        }
         return File(result, "image/jpeg");
     }
 }
