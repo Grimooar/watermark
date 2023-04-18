@@ -1,0 +1,28 @@
+﻿@page "/watermark"
+@using BlazorApp1.Services;
+@using DTOS.Dtos;
+
+<InputFile @bind="@SourceImageFile"></InputFile>
+<br />
+<InputFile @bind="@WatermarkImageFile"></InputFile>
+<input type="button" @onclick="() => UploadButton_Click()" value="Upload"/>
+@if (ResultFile != null)
+{
+    @ResultFile;
+}
+@code {
+    [Inject]
+    public ImageService ImageService { get; set; }
+
+    public FileStream SourceImageFile { get; set; }
+    public FileStream WatermarkImageFile { get; set; }
+    public FileStream ResultFile { get; set; }
+
+    private async Task UploadButton_Click()
+    {
+        var uploadImagesDto = new UploadImagesDto { SourceImage = SourceImageFile, WatermarkImage = WatermarkImageFile };
+        var resultImageDto = await ImageService.UploadImages(uploadImagesDto);
+
+        ResultFile = await ImageService.DowmloadImages(resultImageDto.SourceImageId, resultImageDto.WatermarkImageId);
+    }
+}

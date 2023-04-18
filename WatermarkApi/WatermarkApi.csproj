@@ -7,6 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Examples\**" />
+      <Compile Remove="GenericRepository\**" />
+      <Content Remove="Examples\**" />
+      <Content Remove="GenericRepository\**" />
+      <EmbeddedResource Remove="Examples\**" />
+      <EmbeddedResource Remove="GenericRepository\**" />
+      <None Remove="Examples\**" />
+      <None Remove="GenericRepository\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="JetBrains.NETFramework.ReferenceAssemblies.net35" Version="1.0.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -40,8 +51,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Examples" />
-      <Folder Include="GenericRepository" />
+      <ProjectReference Include="..\Watermark.Models\Watermark.Models.csproj" />
     </ItemGroup>
 
 </Project>

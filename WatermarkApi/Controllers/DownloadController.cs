@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Watermark.Models.Dtos;
 using WatermarkApi.Service;
 
 namespace WatermarkApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class DownloadController : ControllerBase
 {
     private readonly IImageService _imageService;
@@ -15,13 +16,13 @@ public class DownloadController : ControllerBase
     }
 
     [HttpGet("{imageId}/{watermarkId}")]
-    public async Task<IActionResult> Download(int imageId, int watermarkId)
+    public async Task<ActionResult<ResultImageDto>> Download(int imageId, int watermarkId)
     {
         var result = await _imageService.ApplyWatermarkAsync(imageId, watermarkId);
         if (result == null)
         {
             return NotFound();
         }
-        return File(result, "image/jpeg");
+        return Ok(new ResultImageDto { ResultImageBaseString = Convert.ToBase64String(result) });
     }
 }

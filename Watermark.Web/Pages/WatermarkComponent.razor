@@ -1,0 +1,46 @@
+﻿@page "/watermark"
+@using Watermark.Web.Services.Contracts;
+@using Watermark.Models.Dtos;
+
+<InputFile OnChange="@LoadSourceFile"></InputFile>
+<br />
+<InputFile OnChange="@LoadWatermarkFile"></InputFile>
+<input type="button" @onclick="() => UploadButton_Click()" value="Upload"/>
+@if (ResultImageBaseString != null)
+{
+    <br />
+    <br />
+    <img src="data:image/jpeg;base64, @ResultImageBaseString">
+}
+@code {
+    [Inject]
+    public IImageService ImageService { get; set; }
+
+    public string SourceImageBaseString { get; set; }
+    public string WatermarkImageBaseString { get; set; }
+    public string ResultImageBaseString { get; set; }
+
+    private async Task LoadSourceFile(InputFileChangeEventArgs e)
+    {
+        var memoryStream = new MemoryStream();
+        await e.File.OpenReadStream(1000000).CopyToAsync(memoryStream);
+        byte[] imageBytes = memoryStream.ToArray();
+        SourceImageBaseString = Convert.ToBase64String(imageBytes);
+    }
+    private async Task LoadWatermarkFile(InputFileChangeEventArgs e)
+    {
+        var memoryStream = new MemoryStream();
+        await e.File.OpenReadStream(1000000).CopyToAsync(memoryStream);
+        byte[] imageBytes = memoryStream.ToArray();
+        WatermarkImageBaseString = Convert.ToBase64String(imageBytes);
+    }
+    private async Task UploadButton_Click()
+    {
+        var uploadImagesDto = new UploadImagesDto { SourceImageBaseString = this.SourceImageBaseString, WatermarkImageBaseString = this.WatermarkImageBaseString };
+        var requestImageDto = await ImageService.UploadImages(uploadImagesDto);
+
+        var resultImageDto = await ImageService.DowmloadImages(requestImageDto.SourceImageId, requestImageDto.WatermarkImageId);
+        ResultImageBaseString = resultImageDto.ResultImageBaseString;
+
+    }
+}

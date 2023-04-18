@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using WatermarkApi.DbContext;
 using WatermarkApi.Service;
 
@@ -22,6 +23,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(policy =>
+    policy.WithOrigins("http://localhost:7092", "https://localhost:7092")
+    .AllowAnyMethod()
+    .WithHeaders(HeaderNames.ContentType));
+
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
