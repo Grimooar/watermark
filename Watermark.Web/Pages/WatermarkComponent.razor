@@ -1,46 +1,22 @@
 ﻿@page "/"
+
 @using Watermark.Web.Services.Contracts;
 @using Watermark.Models.Dtos;
 
-<InputFile OnChange="@LoadSourceFile"></InputFile>
+@inject ILogger<WatermarkComponent> Logger;
+
+<InputFile OnChange="@UploadSourceImage" />
 <br />
-<InputFile OnChange="@LoadWatermarkFile"></InputFile>
-<input type="button" @onclick="() => UploadButton_Click()" value="Upload"/>
-@if (ResultImageBaseString != null)
+<InputFile OnChange="@UploadWatermarkImage" />
+@if (ErrorMessage != null)
 {
-    <br />
-    <br />
-    <img src="data:image/jpeg;base64, @ResultImageBaseString">
+    <p>@ErrorMessage</p>
 }
-@code {
-    [Inject]
-    public IImageService ImageService { get; set; }
-
-    public string SourceImageBaseString { get; set; }
-    public string WatermarkImageBaseString { get; set; }
-    public string ResultImageBaseString { get; set; }
-
-    private async Task LoadSourceFile(InputFileChangeEventArgs e)
-    {
-        var memoryStream = new MemoryStream();
-        await e.File.OpenReadStream(1000000).CopyToAsync(memoryStream);
-        byte[] imageBytes = memoryStream.ToArray();
-        SourceImageBaseString = Convert.ToBase64String(imageBytes);
-    }
-    private async Task LoadWatermarkFile(InputFileChangeEventArgs e)
-    {
-        var memoryStream = new MemoryStream();
-        await e.File.OpenReadStream(1000000).CopyToAsync(memoryStream);
-        byte[] imageBytes = memoryStream.ToArray();
-        WatermarkImageBaseString = Convert.ToBase64String(imageBytes);
-    }
-    private async Task UploadButton_Click()
-    {
-        var uploadImagesDto = new UploadImagesDto { SourceImageBaseString = this.SourceImageBaseString, WatermarkImageBaseString = this.WatermarkImageBaseString };
-        var requestImageDto = await ImageService.UploadImages(uploadImagesDto);
-
-        var resultImageDto = await ImageService.DowmloadImages(requestImageDto.SourceImageId, requestImageDto.WatermarkImageId);
-        ResultImageBaseString = resultImageDto.ResultImageBaseString;
-
-    }
+@if (SourceImage != null && WatermarkImage != null)
+{
+    <p>Source Image UnSafe Name: @SourceImage.FileName</p>
+    <p>Source Image Safe Name: @SourceImage.StoredFileName</p>
+    <br />
+    <p>Watermark Image UnSafe Name: @WatermarkImage.FileName</p>
+    <p>Watermark Image UnSafe Name: @WatermarkImage.StoredFileName</p>
 }
