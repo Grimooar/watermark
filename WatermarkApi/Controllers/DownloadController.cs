@@ -15,7 +15,7 @@ public class DownloadController : ControllerBase
         _imageService = imageService;
     }
 
-    [HttpGet("{imageId}/{watermarkId}")]
+/*    [HttpGet("{imageId}/{watermarkId}")]
     public async Task<ActionResult<ResultImageDto>> Download(int imageId, int watermarkId)
     {
         var result = await _imageService.ApplyWatermarkAsync(imageId, watermarkId);
@@ -24,5 +24,5 @@ public class DownloadController : ControllerBase
             return NotFound();
         }
         return Ok(new ResultImageDto { ResultImageBaseString = Convert.ToBase64String(result) });
-    }
+    }*/
 }

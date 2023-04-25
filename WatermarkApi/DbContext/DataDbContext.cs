@@ -9,7 +9,5 @@ public class DataDbContext : Microsoft.EntityFrameworkCore.DbContext
            
         }
         public DbSet<StoredImage> StoredImages { get; set; }
-        public DbSet<SourceImage> Images { get; set; }
-        public DbSet<WatermarkImage> Watermarks { get; set; }
     }
 

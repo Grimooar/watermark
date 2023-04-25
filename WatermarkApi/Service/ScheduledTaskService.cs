@@ -19,9 +19,9 @@ namespace WatermarkApi.Service
                     var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
                     Console.WriteLine($"Background service triggered at {DateTime.Now}");
 
-                    //await imageService.DeleteExpiredImages();
+                    await imageService.DeleteExpiredImages();
 
-                    await Task.Delay(new TimeSpan(0, 0, 5)); //6, 0, 0
+                    await Task.Delay(new TimeSpan(0, 0, 25)); //6, 0, 0
                 }
                 
             }

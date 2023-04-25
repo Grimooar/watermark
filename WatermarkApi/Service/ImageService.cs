@@ -19,7 +19,7 @@ namespace WatermarkApi.Service
         public async Task SaveImageToDb(string storedFileName)
         {
             DateTime dateTime = DateTime.Now;
-            dateTime = dateTime.AddMinutes(2); //AddHours(6)
+            dateTime = dateTime.AddSeconds(20); //AddHours(6)
             var image = new StoredImage { StoredName = storedFileName, ExpireDateTime = dateTime };
             var result = _context.StoredImages.Add(image);
             await _context.SaveChangesAsync();
@@ -41,6 +41,9 @@ namespace WatermarkApi.Service
         {
             var path = Path.Combine(env.ContentRootPath, env.EnvironmentName, "unsafe_uploads");
             var expiredImages = _context.StoredImages.Where(x => x.ExpireDateTime <= DateTime.Now);
+            if (!expiredImages.Any())
+                return;
+
             foreach (var expiredImage in expiredImages)
             {
                 var fullPath = Path.Combine(path, expiredImage.StoredName);
@@ -71,7 +74,7 @@ namespace WatermarkApi.Service
             return watermark.Id;
         }*/
 
-        public async Task<byte[]> ApplyWatermarkAsync(int imageId, int watermarkId)
+       /* public async Task<byte[]> ApplyWatermarkAsync(int imageId, int watermarkId)
         {
             var image = await _context.Images.FindAsync(imageId);
             var watermark = await _context.Watermarks.FindAsync(watermarkId);
@@ -105,17 +108,17 @@ namespace WatermarkApi.Service
                 }
             }
             // Determine the position of the watermark in the bottom-right corner of the image
-            /*var watermarkX = resultBitmap.Width - watermarkBitmap.Width;
-            var watermarkY = resultBitmap.Height - watermarkBitmap.Height;*/
+            *//*var watermarkX = resultBitmap.Width - watermarkBitmap.Width;
+            var watermarkY = resultBitmap.Height - watermarkBitmap.Height;*//*
 
             // Draw the watermark onto the new Bitmap
-            /*graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);*/
+            *//*graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);*//*
 
             // Save the new Bitmap to the stream as a JPEG
             resultBitmap.Save(resultStream, ImageFormat.Jpeg);
 
             return resultStream.ToArray();
-        }
+        }*/
 
        
 

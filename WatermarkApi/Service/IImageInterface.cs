@@ -9,5 +9,5 @@ public interface IImageService
     Task DeleteExpiredImages();
     /*Task<int> SaveImageAsync(byte[] imageBytes);
     Task<int> SaveWatermarkAsync(byte[] watermarkBytes);*/
-    Task<byte[]> ApplyWatermarkAsync(int imageId, int watermarkId);
+/*    Task<byte[]> ApplyWatermarkAsync(int imageId, int watermarkId);*/
 }
