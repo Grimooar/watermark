@@ -386,3 +386,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+/WatermarkApi/MyTestedDb.db-shm
+/WatermarkApi/MyTestedDb.db-wal
