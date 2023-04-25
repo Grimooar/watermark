@@ -1,9 +1,5 @@
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using SixLabors.ImageSharp.Formats.Jpeg;
 using WatermarkApi.DbContext;
 using WatermarkApi.Models;
 
@@ -12,13 +8,50 @@ namespace WatermarkApi.Service
     public class ImageService : IImageService
     {
         private readonly DataDbContext _context;
+        private readonly IWebHostEnvironment env;
 
-        public ImageService(DataDbContext context)
+        public ImageService(DataDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            this.env = env;
         }
 
-        public async Task<int> SaveImageAsync(byte[] imageBytes)
+        public async Task SaveImageToDb(string storedFileName)
+        {
+            DateTime dateTime = DateTime.Now;
+            dateTime = dateTime.AddMinutes(2); //AddHours(6)
+            var image = new StoredImage { StoredName = storedFileName, ExpireDateTime = dateTime };
+            var result = _context.StoredImages.Add(image);
+            await _context.SaveChangesAsync();
+            return;
+        }
+        public async Task<StoredImage> DeleteImage(string storedFileName)
+        {
+            var image = await _context.StoredImages.FindAsync(storedFileName);
+
+            if (image != null)
+            {
+                _context.StoredImages.Remove(image);
+                await _context.SaveChangesAsync();
+            }
+
+            return image;
+        }
+        public async Task DeleteExpiredImages()
+        {
+            var path = Path.Combine(env.ContentRootPath, env.EnvironmentName, "unsafe_uploads");
+            var expiredImages = _context.StoredImages.Where(x => x.ExpireDateTime <= DateTime.Now);
+            foreach (var expiredImage in expiredImages)
+            {
+                var fullPath = Path.Combine(path, expiredImage.StoredName);
+                FileInfo file = new FileInfo(fullPath);
+                file.Delete();
+                _context.StoredImages.Remove(expiredImage);
+            }
+            await _context.SaveChangesAsync();
+            
+        }
+/*        public async Task<int> SaveImageAsync(byte[] imageBytes)
         {
             var image = new SourceImage { Data = imageBytes };
             _context.Images.Add(image);
@@ -36,7 +69,7 @@ namespace WatermarkApi.Service
             await _context.SaveChangesAsync();
 
             return watermark.Id;
-        }
+        }*/
 
         public async Task<byte[]> ApplyWatermarkAsync(int imageId, int watermarkId)
         {

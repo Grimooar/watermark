@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
+using WatermarkApi;
 using WatermarkApi.DbContext;
 using WatermarkApi.Service;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -13,6 +17,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataDbContext>(options => options.UseSqlite("Filename=MyTestedDb.db"));
 
 builder.Services.AddScoped<IImageService, ImageService>();
+
+builder.Services.AddHostedService<ScheduledTaskService>();
 
 var app = builder.Build();
 DataDbInitializer.Initialize(app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
@@ -28,6 +34,7 @@ app.UseCors(policy =>
     policy.WithOrigins("http://localhost:7092", "https://localhost:7092")
     .AllowAnyMethod()
     .WithHeaders(HeaderNames.ContentType));
+
 
 
 app.UseHttpsRedirection();

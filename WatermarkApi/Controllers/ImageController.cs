@@ -14,11 +14,13 @@ namespace WatermarkApi.Controllers
     {
         private readonly IWebHostEnvironment env;
         private readonly ILogger<ImageController> logger;
+        private readonly IImageService imageService;
 
-        public ImageController(IWebHostEnvironment env, ILogger<ImageController> logger)
+        public ImageController(IWebHostEnvironment env, ILogger<ImageController> logger, IImageService imageService)
         {
             this.env = env;
             this.logger = logger;
+            this.imageService = imageService;
         }
         private async Task SaveImageToStorage(string trustedFileNameForDisplay, UploadImagesDto uploadResult, IFormFile file)
         {
@@ -39,6 +41,7 @@ namespace WatermarkApi.Controllers
                 logger.LogInformation($"{trustedFileNameForDisplay} saved at {path}");
                 uploadResult.Uploaded = true;
                 uploadResult.StoredFileName = trustedFileNameForFileStorage;
+                await imageService.SaveImageToDb(trustedFileNameForFileStorage);
             }
             catch (IOException ex)
             {
@@ -75,13 +78,27 @@ namespace WatermarkApi.Controllers
             return new CreatedResult(resourcePath, uploadResult);
         }
         [HttpDelete("{trustedFileName}")]
-        public async Task<ActionResult> DeleteImage(string trustedFileName)
+        public async Task<ActionResult> DeleteImage(string trustedFileNameForFileStorage)
         {
-            var path = Path.Combine(env.ContentRootPath, env.EnvironmentName, "unsafe_uploads", trustedFileName);
-            FileInfo file = new FileInfo(path);
-            file.Delete();
+            try
+            {
+                var image = await imageService.DeleteImage(trustedFileNameForFileStorage);
+                if (image == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok();
+                var path = Path.Combine(env.ContentRootPath, env.EnvironmentName, "unsafe_uploads", trustedFileNameForFileStorage);
+                FileInfo file = new FileInfo(path);
+                file.Delete();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            
         }
     }
 }
