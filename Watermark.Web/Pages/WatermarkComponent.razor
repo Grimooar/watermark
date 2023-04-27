@@ -2,12 +2,17 @@
 
 @using Watermark.Web.Services.Contracts;
 @using Watermark.Models.Dtos;
-
-@inject ILogger<WatermarkComponent> Logger;
-
-<InputFile OnChange="@UploadSourceImage" />
-<br />
-<InputFile OnChange="@UploadWatermarkImage" />
+<div class="row">
+    <div class="col">
+        <img @ref="previewSourceImageElem" style="max-width:200px;max-height:200px" />
+        <InputFile @ref="inputSourceImageFile" OnChange="@UploadSourceImage" />
+    </div>
+    <div class="col">
+        <img @ref="previewWatermarkImageElem" style="max-width:200px;max-height:200px" />
+        <InputFile @ref="inputWatermarkImageFile" OnChange="@UploadWatermarkImage" />
+    </div>
+    <br />
+</div>
 @if (ErrorMessage != null)
 {
     <p>@ErrorMessage</p>
@@ -18,5 +23,6 @@
     <p>Source Image Safe Name: @SourceImage.StoredFileName</p>
     <br />
     <p>Watermark Image UnSafe Name: @WatermarkImage.FileName</p>
-    <p>Watermark Image UnSafe Name: @WatermarkImage.StoredFileName</p>
+    <p>Watermark Image Safe Name: @WatermarkImage.StoredFileName</p>
+    <ResultImageComponent SourceImage="@SourceImage" WatermarkImage="@WatermarkImage" />
 }

@@ -14,11 +14,11 @@ namespace Watermark.Web.Services
             this.httpClient = httpClient;
         }
 
-        public async Task DeleteImages(string trustedFileName)
+        public async Task DeleteImages(string storedFileName)
         {
             try
             {
-                var response = await httpClient.DeleteAsync($"api/Image/{trustedFileName}");
+                var response = await httpClient.DeleteAsync($"api/Image/{storedFileName}");
                 if (response.IsSuccessStatusCode)
                     return;
                 return;
@@ -30,9 +30,30 @@ namespace Watermark.Web.Services
             }
         }
 
-        public async Task<ResultImageDto> DowmloadImages(int sourceImageId, int watermarkImageId)
+        public async Task<string> RequestImage(string sourceImageStoredFileName, string watermarkImageStoredFileName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await httpClient.GetAsync($"api/Image/{sourceImageStoredFileName}/{watermarkImageStoredFileName}");
+                if (response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    {
+                        return (default);
+                    }
+                    return await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    var message = await response.Content.ReadAsStringAsync();
+                    throw new Exception(message);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<UploadImagesDto> UploadImages(IBrowserFile browserFile)

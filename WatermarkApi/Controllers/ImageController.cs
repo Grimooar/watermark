@@ -22,33 +22,7 @@ namespace WatermarkApi.Controllers
             this.logger = logger;
             this.imageService = imageService;
         }
-        private async Task SaveImageToStorage(string trustedFileNameForDisplay, UploadImagesDto uploadResult, IFormFile file)
-        {
-            try
-            {
-                string trustedFileNameForFileStorage;
-                trustedFileNameForFileStorage = Path.GetRandomFileName();
-                var path = Path.Combine(env.ContentRootPath, env.EnvironmentName, "unsafe_uploads");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                path = Path.Combine(path, trustedFileNameForFileStorage);
-                await using FileStream fs = new(path, FileMode.Create);
-                await file.CopyToAsync(fs);
-
-                logger.LogInformation($"{trustedFileNameForDisplay} saved at {path}");
-                uploadResult.Uploaded = true;
-                uploadResult.StoredFileName = trustedFileNameForFileStorage;
-                await imageService.SaveImageToDb(trustedFileNameForFileStorage);
-            }
-            catch (IOException ex)
-            {
-                logger.LogError($"{trustedFileNameForDisplay} error in upload (Err: 3): {ex.Message}");
-                uploadResult.ErrorCode = 3;
-            }
-        }
+        
         [HttpPost]
         public async Task<ActionResult<UploadImagesDto>> UploadImages([FromForm] IFormFile file)
         {
@@ -73,9 +47,20 @@ namespace WatermarkApi.Controllers
             }
             else
             {
-                await SaveImageToStorage(trustedFileNameForDisplay, uploadResult, file);
+                await imageService.SaveImageToStorage(trustedFileNameForDisplay, uploadResult, file);
             }
             return new CreatedResult(resourcePath, uploadResult);
+        }
+        [HttpGet("{sourceImageStoredFileName}/{watermarkImageStoredFileName}")]
+        public async Task<ActionResult> Download(string sourceImageStoredFileName, string watermarkImageStoredFileName)
+        {
+            var result = await imageService.ApplyWatermarkAsync(sourceImageStoredFileName, watermarkImageStoredFileName);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            var resultBase64String = Convert.ToBase64String(result);
+            return Ok(resultBase64String);
         }
         [HttpDelete("{trustedFileName}")]
         public async Task<ActionResult> DeleteImage(string trustedFileNameForFileStorage)

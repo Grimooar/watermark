@@ -6,8 +6,8 @@ namespace Watermark.Web.Services.Contracts
     public interface IImageService
     {
         Task<UploadImagesDto> UploadImages(IBrowserFile file);
-        Task<ResultImageDto> DowmloadImages(int sourceImageId, int watermarkImageId);
-        Task DeleteImages(string trustedFileName);
+        Task<string> RequestImage(string sourceImageStoredFileName, string watermarkImageStoredFileName);
+        Task DeleteImages(string storedFileName);
 
     }
 }

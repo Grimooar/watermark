@@ -21,7 +21,7 @@ namespace WatermarkApi.Service
 
                     await imageService.DeleteExpiredImages();
 
-                    await Task.Delay(new TimeSpan(0, 0, 25)); //6, 0, 0
+                    await Task.Delay(new TimeSpan(6, 0, 0)); //6, 0, 0
                 }
                 
             }
