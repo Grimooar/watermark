@@ -63,7 +63,7 @@ namespace WatermarkApi.Service
             // Draw the original image onto the new Bitmap
             graphics.DrawImage(imageBitmap, 0, 0);
 
-            //Нанесение водяного знака по всей картинке
+            //ГЌГ Г­ГҐГ±ГҐГ­ГЁГҐ ГўГ®Г¤ГїГ­Г®ГЈГ® Г§Г­Г ГЄГ  ГЇГ® ГўГ±ГҐГ© ГЄГ Г°ГІГЁГ­ГЄГҐ
             for (int watermarkY = 0; watermarkY <= resultBitmap.Height; watermarkY += watermarkBitmap.Height)
             {
                 for (int watermarkX = 0; watermarkX <= resultBitmap.Width; watermarkX += watermarkBitmap.Width)

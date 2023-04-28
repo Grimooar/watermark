@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Watermark.Models.Dtos;
 using WatermarkApi.Service;
 
 namespace WatermarkApi.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class DownloadController : ControllerBase
