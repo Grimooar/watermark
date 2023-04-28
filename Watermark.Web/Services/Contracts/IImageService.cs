@@ -1,11 +1,13 @@
-﻿using Watermark.Models.Dtos;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Watermark.Models.Dtos;
 
 namespace Watermark.Web.Services.Contracts
 {
     public interface IImageService
     {
-        Task<RequestImageDto> UploadImages(UploadImagesDto uploadImagesDto);
-        Task<ResultImageDto> DowmloadImages(int sourceImageId, int watermarkImageId);
+        Task<UploadImagesDto> UploadImages(IBrowserFile file);
+        Task<string> RequestImage(string sourceImageStoredFileName, string watermarkImageStoredFileName);
+        Task DeleteImages(string storedFileName);
 
     }
 }

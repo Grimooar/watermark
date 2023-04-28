@@ -8,7 +8,7 @@ namespace Watermark.Models.Dtos
 {
     public class RequestImageDto
     {
-        public int SourceImageId { get; set; }
-        public int WatermarkImageId { get; set; }
+        public string SourceImageStoredFileName { get; set; }
+        public string WatermarkImageStoredFileName { get; set; }
     }
 }

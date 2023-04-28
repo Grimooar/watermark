@@ -5,9 +5,9 @@ VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WatermarkApi", "WatermarkApi\WatermarkApi.csproj", "{3A2324A4-9DEA-4EA0-93A6-2AD54866487E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watermark.Web", "Watermark.Web\Watermark.Web.csproj", "{D3467496-36AA-4A5A-9F83-20952085F510}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Watermark.Web", "Watermark.Web\Watermark.Web.csproj", "{D3467496-36AA-4A5A-9F83-20952085F510}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watermark.Models", "Watermark.Models\Watermark.Models.csproj", "{BCA59035-A87F-4289-A6AD-467699BA445A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Watermark.Models", "Watermark.Models\Watermark.Models.csproj", "{BCA59035-A87F-4289-A6AD-467699BA445A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

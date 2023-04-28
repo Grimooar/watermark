@@ -67,4 +67,8 @@
       <ProjectReference Include="..\Watermark.Models\Watermark.Models.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Development\unsafe_uploads\" />
+    </ItemGroup>
+
 </Project>

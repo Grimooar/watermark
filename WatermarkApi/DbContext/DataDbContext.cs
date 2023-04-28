@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using WatermarkApi.Models;
 
@@ -9,8 +8,6 @@ public class DataDbContext : Microsoft.EntityFrameworkCore.DbContext
         {
            
         }
-
-        public DbSet<SourceImage> Images { get; set; }
-        public DbSet<WatermarkImage> Watermarks { get; set; }
+        public DbSet<StoredImage> StoredImages { get; set; }
     }
 

@@ -4,6 +4,7 @@ using FluentValidation.AspNetCore;
 using Kirel.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
+using WatermarkApi;
 using WatermarkApi.DbContext;
 using WatermarkApi.Models;
 using WatermarkApi.Service;
@@ -14,11 +15,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApi.Service;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("JWTSettings"));
 var configuration = new ConfigurationManager().AddJsonFile("appsettings.json").Build();
 var authOptions = configuration.GetSection("AuthOptions").Get<AuthOptions>();
+
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -91,6 +95,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddHostedService<ScheduledTaskService>();
 
 var app = builder.Build();
 DataDbInitializer.Initialize(app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider);
@@ -105,6 +110,7 @@ app.UseCors(policy =>
     policy.WithOrigins("http://localhost:7092", "https://localhost:7092")
     .AllowAnyMethod()
     .WithHeaders(HeaderNames.ContentType));
+
 
 
 app.UseHttpsRedirection();

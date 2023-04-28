@@ -1,8 +1,8 @@
 // Controllers/ImageController.cs
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Threading.Tasks;
+using System.Net;
 using Watermark.Models.Dtos;
 using WatermarkApi.Service;
 
@@ -12,30 +12,78 @@ namespace WatermarkApi.Controllers
     [Route("api/[controller]")]
     public class ImageController : ControllerBase
     {
-        private readonly IImageService _imageService;
+        private readonly IWebHostEnvironment env;
+        private readonly ILogger<ImageController> logger;
+        private readonly IImageService imageService;
 
-        public ImageController(IImageService imageService)
+        public ImageController(IWebHostEnvironment env, ILogger<ImageController> logger, IImageService imageService)
         {
-            _imageService = imageService;
+            this.env = env;
+            this.logger = logger;
+            this.imageService = imageService;
         }
-
+        
         [HttpPost]
-        public async Task<ActionResult<RequestImageDto>> UploadImages([FromBody] UploadImagesDto uploadImagesDto)
+        public async Task<ActionResult<UploadImagesDto>> UploadImages([FromForm] IFormFile file)
         {
-            if ((uploadImagesDto.WatermarkImageBaseString == null || uploadImagesDto.WatermarkImageBaseString.Length == 0)
-                || (uploadImagesDto.SourceImageBaseString == null || uploadImagesDto.SourceImageBaseString.Length == 0))
+            var resourcePath = new Uri($"{Request.Scheme}://{Request.Host}/");
+            var maxFileSize = 512000 * 2;
+
+            var uploadResult = new UploadImagesDto();
+            
+            var untrustedFileName = file.FileName;
+            uploadResult.FileName = untrustedFileName;
+            var trustedFileNameForDisplay = WebUtility.HtmlEncode(untrustedFileName);
+
+            if (file.Length == 0)
             {
-                return BadRequest("File not provided or empty.");
+                logger.LogInformation($"{trustedFileNameForDisplay} length is 0 (Err: 1)");
+                uploadResult.ErrorCode = 1;
             }
+            else if (file.Length > maxFileSize)
+            {
+                logger.LogInformation($"{trustedFileNameForDisplay} of {file.Length} bytes is larger than the limit of {maxFileSize} bytes (Err: 2)");
+                uploadResult.ErrorCode = 2;
+            }
+            else
+            {
+                await imageService.SaveImageToStorage(trustedFileNameForDisplay, uploadResult, file);
+            }
+            return new CreatedResult(resourcePath, uploadResult);
+        }
+        [HttpGet("{sourceImageStoredFileName}/{watermarkImageStoredFileName}")]
+        public async Task<ActionResult> Download(string sourceImageStoredFileName, string watermarkImageStoredFileName)
+        {
+            var result = await imageService.ApplyWatermarkAsync(sourceImageStoredFileName, watermarkImageStoredFileName);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            var resultBase64String = Convert.ToBase64String(result);
+            return Ok(resultBase64String);
+        }
+        [HttpDelete("{trustedFileName}")]
+        public async Task<ActionResult> DeleteImage(string trustedFileNameForFileStorage)
+        {
+            try
+            {
+                var image = await imageService.DeleteImage(trustedFileNameForFileStorage);
+                if (image == null)
+                {
+                    return NotFound();
+                }
 
-            byte[] sourceImageBytes = Convert.FromBase64String(uploadImagesDto.SourceImageBaseString);
-            byte[] watermarkImageBytes = Convert.FromBase64String(uploadImagesDto.WatermarkImageBaseString);
+                var path = Path.Combine(env.ContentRootPath, env.EnvironmentName, "unsafe_uploads", trustedFileNameForFileStorage);
+                FileInfo file = new FileInfo(path);
+                file.Delete();
 
-            int sourceImageId = await _imageService.SaveImageAsync(sourceImageBytes);
-
-            int watermarkImageId = await _imageService.SaveWatermarkAsync(watermarkImageBytes);
-
-            return Ok(new RequestImageDto { SourceImageId = sourceImageId, WatermarkImageId = watermarkImageId });
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            
         }
     }
 }
