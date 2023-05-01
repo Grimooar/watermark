@@ -390,3 +390,5 @@ FodyWeavers.xsd
 /WatermarkApi/MyTestedDb.db-wal
 WatermarkApi/ApplicationDb.db-shm
 WatermarkApi/ApplicationDb.db-wal
+/WatermarkApi/ApplicationDb.db-shm
+/WatermarkApi/ApplicationDb.db-wal
