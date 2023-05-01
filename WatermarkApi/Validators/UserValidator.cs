@@ -7,13 +7,13 @@ namespace WatermarkApi.Validators;
 
 public class UserValidator: AbstractValidator<UserCreateDto>
 {
-    private readonly IKirelGenericEntityFrameworkRepository<int, User> _repository;
+    private readonly IKirelGenericEntityFrameworkRepository<int, User> repository;
    
     public UserValidator(IKirelGenericEntityFrameworkRepository<int, User> repository)
     {
-        _repository = repository;
-       
-        RuleFor(user => user.UserName).NotEmpty();
+        this.repository = repository;
+        RuleFor(user => user.Email).NotEmpty();
+        RuleFor(user => user.Email).EmailAddress();
     }
 
 

@@ -1,54 +1,53 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Watermark.Models.Dtos;
 using WatermarkApi.Models;
 using WatermarkApi.Service;
-using WebApi.Service;
 
-namespace WatermarkApi.Controllers;
-
-[Microsoft.AspNetCore.Components.Route("api/[controller]")]
-[ApiController]
-public class AuthController : ControllerBase
+namespace WatermarkApi.Controllers
 {
-    private readonly AuthOptions _authOptions;
-    private readonly UserService _userService;
-    private readonly AuthService _authService;
-
-    public AuthController(IOptions<AuthOptions> authOptions, UserService userService, AuthService authService)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
-        _authOptions = authOptions.Value;
-        _userService = userService;
-        _authService = authService;
-    }
+        private readonly AuthService authService;
+        private readonly UserManager<User> userManager;
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(UserDto userDto)
-    {
-        var result = await _authService.Register(userDto);
-
-        if (result.Succeeded)
+        public AuthController(AuthService authService, UserManager<User> userManager)
         {
-            return Ok();
-        }
-        else
-        {
-            return BadRequest(result.Errors);
-        }
-    }
-
-
-        
-    [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto loginDto)
-    {
-        var token = await _authService.Login(loginDto);
-
-        if (token == null)
-        {
-            return BadRequest(new { message = "Invalid email or password" });
+            this.authService = authService;
+            this.userManager = userManager;
         }
 
-        return Ok(new { token });
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserCreateDto userCreate)
+        {
+            if (userCreate == null || !ModelState.IsValid)
+                return BadRequest();
+
+            var result = await authService.Register(userCreate);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+                return BadRequest(new RegistrationResponseDto { Errors = errors });
+            }
+
+            return StatusCode(201);
+        }
+
+
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        {
+            var token = await authService.Login(loginDto);
+
+            if (token == null)
+                return Unauthorized(new AuthResponseDto { ErrorMessage = "Invalid Authentication" });
+
+            return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token = token });
+        }
     }
 }

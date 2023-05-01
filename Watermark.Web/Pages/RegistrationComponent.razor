@@ -1,0 +1,68 @@
+﻿@page "/registration"
+<h3>Registration</h3>
+
+@if (ShowRegistrationErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (var error in Errors)
+        {
+            <p>@error</p>
+        }
+    </div>
+}
+
+<EditForm Model="userCreateDto" OnValidSubmit="Register" class="card card-body bg-light mt-5">
+    <DataAnnotationsValidator />
+    <div class="form-group row">
+        <label for="name" class="col-md-2 col-form-label">Name:</label>
+        <div class="col-md-10">
+            <InputText id="name" class="form-control" @bind-Value="userCreateDto.Name" />
+            <ValidationMessage For="@(() => userCreateDto.Name)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="last-name" class="col-md-2 col-form-label">Last Name:</label>
+        <div class="col-md-10">
+            <InputText id="last-name" class="form-control" @bind-Value="userCreateDto.LastName" />
+            <ValidationMessage For="@(() => userCreateDto.LastName)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="email" class="col-md-2 col-form-label">Email:</label>
+        <div class="col-md-10">
+            <InputText id="email" class="form-control" @bind-Value="userCreateDto.Email" />
+            <ValidationMessage For="@(() => userCreateDto.Email)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="phone" class="col-md-2 col-form-label">Phone:</label>
+        <div class="col-md-10">
+            <InputText id="phone" type="tel" name="phone" class="form-control" @bind-Value="userCreateDto.PhoneNumber" />
+            <ValidationMessage For="@(() => userCreateDto.PhoneNumber)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="password" class="col-md-2 col-form-label">Password:</label>
+        <div class="col-md-10">
+            <InputText type="password" id="password" class="form-control" @bind-Value="userCreateDto.Password" />
+            <ValidationMessage For="@(() => userCreateDto.Password)" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="confirm" class="col-md-2 col-form-label">Confirm Password:</label>
+        <div class="col-md-10">
+            <InputText type="password" id="confirm" class="form-control" @bind-Value="userCreateDto.ConfirmPassword" />
+            <ValidationMessage For="@(() => userCreateDto.ConfirmPassword)" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button type="submit" class="btn btn-success">Register</button>
+        </div>
+    </div>
+</EditForm>

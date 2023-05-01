@@ -388,3 +388,5 @@ FodyWeavers.xsd
 *.sln.iml
 /WatermarkApi/MyTestedDb.db-shm
 /WatermarkApi/MyTestedDb.db-wal
+WatermarkApi/ApplicationDb.db-shm
+WatermarkApi/ApplicationDb.db-wal

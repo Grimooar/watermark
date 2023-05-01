@@ -25,9 +25,7 @@ namespace Watermark.Web.Pages
         private async Task UploadSourceImage(InputFileChangeEventArgs e)
         {
             if (SourceImage != null && SourceImage.ErrorCode == 0)
-            {
                 await DeleteImage(SourceImage.StoredFileName);
-            }
 
             await JS.InvokeVoidAsync("previewImage", inputSourceImageFile!.Element, previewSourceImageElem);
             SourceImage = await UploadImage(e.File);
@@ -36,9 +34,7 @@ namespace Watermark.Web.Pages
         private async Task UploadWatermarkImage(InputFileChangeEventArgs e)
         {
             if (WatermarkImage != null && WatermarkImage.ErrorCode == 0)
-            {
                 await DeleteImage(WatermarkImage.StoredFileName);
-            }
 
             await JS.InvokeVoidAsync("previewImage", inputWatermarkImageFile!.Element, previewWatermarkImageElem);
             WatermarkImage = await UploadImage(e.File);
@@ -49,9 +45,7 @@ namespace Watermark.Web.Pages
             {
                 var image = await ImageService.UploadImages(file);
                 if (image.ErrorCode != 0)
-                {
                     ErrorMessage = image.ErrorCode.ToString();
-                }
                 return image;
             }
             catch (Exception ex)

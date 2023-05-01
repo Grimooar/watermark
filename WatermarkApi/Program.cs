@@ -14,12 +14,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using WebApi.Service;
-using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("JWTSettings"));
 var configuration = new ConfigurationManager().AddJsonFile("appsettings.json").Build();
+builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("JWTSettings"));
 var authOptions = configuration.GetSection("AuthOptions").Get<AuthOptions>();
 
 
@@ -37,10 +35,21 @@ builder.Services.AddScoped<IKirelGenericEntityFrameworkRepository<int, User>, Ki
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IImageService, ImageService>();
 
-builder.Services.AddIdentity<User, IdentityRole<int>>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.SignIn.RequireConfirmedEmail = false;
+
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = false;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddSingleton(authOptions);
-builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
 
 
@@ -55,10 +64,6 @@ builder.Services.AddAuthentication(options =>
     if (authOptions.Key != null)
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidIssuer = authOptions.Issuer,
-            ValidateAudience = true,
-            ValidAudience = authOptions.Audience,
             ValidateLifetime = true,
             IssuerSigningKey = authOptions.GetSymmetricSecurityKey(authOptions.Key),
             ValidateIssuerSigningKey = true
@@ -114,6 +119,7 @@ app.UseCors(policy =>
 
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

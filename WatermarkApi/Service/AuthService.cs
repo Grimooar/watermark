@@ -6,92 +6,83 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Watermark.Models.Dtos;
 using WatermarkApi.Models;
-using WebApi.Service;
 
-namespace WatermarkApi.Service;
-
- public class AuthService
+namespace WatermarkApi.Service
+{
+    public class AuthService
     {
-        private readonly AuthOptions _authOptions;
-        private readonly UserManager<User> _userManager;
-        private readonly UserService _userService;
-        private readonly IConfiguration _configuration;
+        private readonly AuthOptions authOptions;
+        private readonly UserManager<User> userManager;
+        private readonly IConfiguration configuration;
 
-        public AuthService(IOptions<AuthOptions> authOptions, UserManager<User> userManager, UserService userService,IConfiguration configuration)
+        public AuthService(IOptions<AuthOptions> authOptions, UserManager<User> userManager, IConfiguration configuration)
         {
-            _authOptions = authOptions.Value;
-            _userManager = userManager;
-            _userService = userService;
-            _configuration = configuration;
+            this.authOptions = authOptions.Value;
+            this.userManager = userManager;
+            this.configuration = configuration;
         }
         public async Task<string?> Login(LoginDto loginDto)
         {
-        
-            var user = await _userManager.FindByIdAsync(loginDto.Id);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
-            {
-                return null;
-            }
 
-// Create a list of claims to include in the JWT
+            var user = await userManager.FindByNameAsync(loginDto.Email);
+            if (user == null || !await userManager.CheckPasswordAsync(user, loginDto.Password))
+                return null;
+
+            var signingCredentials = GetSigningCredentials();
+            var claims = GetClaims(user);
+            var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+            return token;
+
+
+        }
+
+        private SigningCredentials GetSigningCredentials()
+        {
+            var authOptions = configuration.GetSection("AuthOptions").Get<AuthOptions>();
+            var key = Encoding.UTF8.GetBytes(authOptions.Key);
+            var secret = new SymmetricSecurityKey(key);
+
+            return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+        }
+        private List<Claim> GetClaims(User user)
+        {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.Email)
             };
 
-// Generate a JWT using the provided authentication options
-            var authOptions = _configuration.GetSection("AuthOptions").Get<AuthOptions>();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions.Key));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(authOptions.Issuer, authOptions.Audience, claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(authOptions.Lifetime)),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-
-           
+            return claims;
         }
-        // public async Task<string?> Login(LoginDto loginDto)
-        // {
-        //    //var user = await _userService.GetUserByEmailAsync(loginDto.Email);
-        //      var user = await _userManager.FindByEmailAsync(loginDto.Email);
-        //     if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
-        //         return null;
-        //
-        //     var claims = new List<Claim>
-        //     {
-        //         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        //         new Claim(ClaimTypes.Email, user.Email),
-        //         new Claim(ClaimTypes.Name, user.UserName)
-        //     };
-        //
-        //     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authOptions.Key));
-        //     var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        //     var token = new JwtSecurityToken(_authOptions.Issuer, _authOptions.Audience, claims,
-        //         expires: DateTime.Now.AddMinutes(Convert.ToDouble(_authOptions.Lifetime)), signingCredentials: credentials);
-        //
-        //     return new JwtSecurityTokenHandler().WriteToken(token);
-        // }
+        private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
+        {
+            var tokenOptions = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(authOptions.Lifetime)),
+                signingCredentials: signingCredentials);
 
+            return tokenOptions;
+        }
 
-        public async Task<IdentityResult> Register(UserDto userDto)
+        public async Task<IdentityResult> Register(UserCreateDto userCreate)
         {
             var user = new User
             {
-                UserName = userDto.UserName,
-                
-                
-                Name = userDto.Name,
-                LastName = userDto.LastName,
+                UserName = userCreate.Email,
+                Name = userCreate.Name,
+                LastName = userCreate.LastName,
                 Created = DateTime.UtcNow,
-                Email = userDto.Email
+                Email = userCreate.Email,
+                PhoneNumber = userCreate.PhoneNumber,
             };
 
-            var result = await _userManager.CreateAsync(user, userDto.Password);
+            var result = await userManager.CreateAsync(user, userCreate.Password);
 
             return result;
         }
 
     }
+}
+
+ 
