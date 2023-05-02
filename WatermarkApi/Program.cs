@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = new ConfigurationManager().AddJsonFile("appsettings.json").Build();
@@ -61,13 +62,16 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    if (authOptions.Key != null)
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateLifetime = true,
-            IssuerSigningKey = authOptions.GetSymmetricSecurityKey(authOptions.Key),
-            ValidateIssuerSigningKey = true
-        };
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = authOptions.Issuer,
+        ValidateAudience = true,
+        ValidAudience = authOptions.Audience,
+        ValidateLifetime = true,
+        IssuerSigningKey = authOptions.GetSymmetricSecurityKey(authOptions.Key),
+        ValidateIssuerSigningKey = true
+    };
 });
 builder.Services.AddSwaggerGen(c =>
 {
@@ -114,8 +118,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors(policy =>
     policy.WithOrigins("http://localhost:7092", "https://localhost:7092")
     .AllowAnyMethod()
-    .WithHeaders(HeaderNames.ContentType));
-
+    .AllowAnyHeader());
 
 
 app.UseHttpsRedirection();

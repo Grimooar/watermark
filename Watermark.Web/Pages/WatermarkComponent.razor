@@ -2,25 +2,55 @@
 
 @using Watermark.Web.Services.Contracts;
 @using Watermark.Models.Dtos;
-<div class="row">
-    <div class="col">
-        <img @ref="previewSourceImageElem" style="max-width:200px;max-height:200px" />
-        <InputFile @ref="inputSourceImageFile" OnChange="@UploadSourceImage" />
+
+@if (ErrorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@ErrorMessage</p>
     </div>
-    <div class="col">
-        <img @ref="previewWatermarkImageElem" style="max-width:200px;max-height:200px" />
-        <InputFile @ref="inputWatermarkImageFile" OnChange="@UploadWatermarkImage" />
+}
+
+<div class="card card-body bg-light">
+    <div class="container">
+        <div class="row justify-content-around" style="padding-bottom:10px">
+            <div class="col-3">
+                <img @ref="previewSourceImageElem" class="mx-auto d-block" style="max-width:200px;max-height:200px;" /><br />
+                <label for="controlFile1">Submit source image</label>
+                <InputFile @ref="inputSourceImageFile" OnChange="@UploadSourceImage" class="form-control-file" id="controlFile1" />
+            </div>
+            <div class="col-3">
+                <img @ref="previewWatermarkImageElem" style="max-width:200px;max-height:200px" /><br />
+                <label for="controlFile2">Submit watermark</label>
+                <InputFile @ref="inputWatermarkImageFile" OnChange="@UploadWatermarkImage" class="form-control-file" id="controlFile2" />
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <label class="col-2 text-center">Watermark postition</label>
+            <div class="col-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" checked="@(WatermarkStyle == 1)" @onclick="() => WatermarkStyle = 1">
+                    <label class="form-check-label" for="gridRadios1">
+                        All image
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" checked="@(WatermarkStyle == 2)" @onclick="() => WatermarkStyle = 2">
+                    <label class="form-check-label" for="gridRadios2">
+                        Right bottom corner
+                    </label>
+                </div>
+                <div class="form-check disabled">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" checked="@(WatermarkStyle == 3)" @onclick="() => WatermarkStyle = 3">
+                    <label class="form-check-label" for="gridRadios3">
+                        Left upper corner
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
-    <br />
-</div>
-<AuthorizeView>
-    <Authorized>
-        Bebra
-    </Authorized>
-    <NotAuthorized>
-        Bobra
-    </NotAuthorized>
-</AuthorizeView>
+
+
+<p>@WatermarkStyle</p>
 @if (ErrorMessage != null)
 {
     <p>@ErrorMessage</p>
@@ -32,5 +62,6 @@
     <br />
     <p>Watermark Image UnSafe Name: @WatermarkImage.FileName</p>
     <p>Watermark Image Safe Name: @WatermarkImage.StoredFileName</p>
-    <ResultImageComponent SourceImage="@SourceImage" WatermarkImage="@WatermarkImage" />
+    <ResultImageComponent SourceImage="@SourceImage" WatermarkImage="@WatermarkImage" WatermarkStyle="@WatermarkStyle" />
 }
+</div>

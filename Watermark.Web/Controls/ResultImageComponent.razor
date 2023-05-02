@@ -1,5 +1,5 @@
 ﻿<button class="btn btn-primary" @onclick="@RequestWatermarkedImage">Process</button>
-@if (ResultImageBase64String != null)
+@if (WatermarkedImageDto != null)
 {
-    <img src="data:image/jpeg;base64, @ResultImageBase64String">
+    <img src="data:image/png;base64, @WatermarkedImageDto.ImageBase64Data">
 }

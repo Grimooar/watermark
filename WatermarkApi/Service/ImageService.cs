@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Watermark.Models.Dtos;
 using WatermarkApi.DbContext;
@@ -85,31 +86,12 @@ namespace WatermarkApi.Service
             await _context.SaveChangesAsync();
             
         }
-        /*        public async Task<int> SaveImageAsync(byte[] imageBytes)
-                {
-                    var image = new SourceImage { Data = imageBytes };
-                    _context.Images.Add(image);
-                    await _context.SaveChangesAsync();
-
-                    return image.Id;
-                }
-
-
-
-                public async Task<int> SaveWatermarkAsync(byte[] watermarkBytes)
-                {
-                    var watermark = new WatermarkImage { Data = watermarkBytes };
-                    _context.Watermarks.Add(watermark);
-                    await _context.SaveChangesAsync();
-
-                    return watermark.Id;
-                }*/
-
-        public async Task<byte[]> ApplyWatermarkAsync(string sourceImageStoredName, string watermarkImageStoredName)
+        
+        public async Task<byte[]> ApplyWatermarkAsync(RequestImageDto requestImageDto)
         {
             var path = Path.Combine(env.ContentRootPath, env.EnvironmentName, "unsafe_uploads");
-            FileInfo sourceImageFileInfo = new FileInfo(Path.Combine(path, sourceImageStoredName));
-            FileInfo watermarkImageFileInfo = new FileInfo(Path.Combine(path, watermarkImageStoredName));
+            FileInfo sourceImageFileInfo = new FileInfo(Path.Combine(path, requestImageDto.SourceImageStoredFileName));
+            FileInfo watermarkImageFileInfo = new FileInfo(Path.Combine(path, requestImageDto.WatermarkImageStoredFileName));
             if (!sourceImageFileInfo.Exists || !watermarkImageFileInfo.Exists)
             {
                 return null;
@@ -141,7 +123,30 @@ namespace WatermarkApi.Service
             // Draw the original image onto the new Bitmap
             graphics.DrawImage(sourceImageBitmap, 0, 0, sourceImageBitmap.Width, sourceImageBitmap.Height);
 
-            //Íàíåñåíèå âîäÿíîãî çíàêà ïî âñåé êàðòèíêå
+            //Resize watermark to 1/10 of source image
+            int watermarkNewWidth = sourceImageBitmap.Width / 3;
+            int watermarkNewHeight = (int)((float)watermarkBitmap.Height * ((float)watermarkNewWidth / (float) watermarkBitmap.Width));
+            var resizedWatermarkBitmap = ResizeImage(watermarkBitmap, watermarkNewWidth, watermarkNewHeight);
+            
+            //Apply watermark to souce image in selected location
+            switch (requestImageDto.WatermarkStyle)
+            {
+                case 1:
+                    await ApplyWatermarkAllOverImage(resultBitmap, resizedWatermarkBitmap, graphics);
+                    break;
+                case var n when n >= 2 && n <= 3:
+                    await ApplyWatermarkInCorner(resultBitmap, resizedWatermarkBitmap, graphics, n);
+                    break;
+            }
+
+            // Save the new Bitmap to the stream as a JPEG
+            resultBitmap.Save(resultStream, ImageFormat.Png);
+
+            return resultStream.ToArray();
+        }
+
+        private async Task ApplyWatermarkAllOverImage(Bitmap resultBitmap, Bitmap watermarkBitmap, Graphics graphics)
+        {
             for (int watermarkY = 0; watermarkY <= resultBitmap.Height; watermarkY += watermarkBitmap.Height)
             {
                 for (int watermarkX = 0; watermarkX <= resultBitmap.Width; watermarkX += watermarkBitmap.Width)
@@ -149,17 +154,52 @@ namespace WatermarkApi.Service
                     graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);
                 }
             }
-            /*// Determine the position of the watermark in the bottom-right corner of the image
-            var watermarkX = resultBitmap.Width - watermarkBitmap.Width;
-            var watermarkY = resultBitmap.Height - watermarkBitmap.Height;*/
+        }
+        private async Task ApplyWatermarkInCorner(Bitmap resultBitmap, Bitmap watermarkBitmap, Graphics graphics, int watermarkPos)
+        {
+            int watermarkX, watermarkY;
+            switch (watermarkPos)
+            {
+                case 2: //Bottom right corner
+                    watermarkX = resultBitmap.Width - watermarkBitmap.Width;
+                    watermarkY = resultBitmap.Height - watermarkBitmap.Height;
+                    break;
+                case 3: //Upper left corner
+                    watermarkX = 0;
+                    watermarkY = 0;
+                    break;
+                default:
+                    watermarkX = default(int);
+                    watermarkY = default(int);
+                    break;
+            }
 
-            /*// Draw the watermark onto the new Bitmap
-            graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);*/
+            graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);
+        }
 
-            // Save the new Bitmap to the stream as a JPEG
-            resultBitmap.Save(resultStream, ImageFormat.Png);
+        private static Bitmap ResizeImage(Bitmap image, int width, int height)
+        {
+            var destRect = new System.Drawing.Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
 
-            return resultStream.ToArray();
+            destImage.SetResolution(image.Width, image.Height);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                graphics.InterpolationMode = InterpolationMode.Default;
+                graphics.SmoothingMode = SmoothingMode.Default;
+                graphics.PixelOffsetMode = PixelOffsetMode.Default;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
         }
 
 

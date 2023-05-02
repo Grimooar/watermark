@@ -2,6 +2,8 @@
 using System.Net.Http.Json;
 using Watermark.Models.Dtos;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Text.Json;
+using System.Text;
 
 namespace Watermark.Web.Services
 {
@@ -30,37 +32,39 @@ namespace Watermark.Web.Services
             }
         }
 
-        public async Task<string> RequestImage(string sourceImageStoredFileName, string watermarkImageStoredFileName)
+        public async Task<WatermarkedImageDto> RequestImage(RequestImageDto requestImageDto)
         {
             try
             {
-                var response = await httpClient.GetAsync($"api/Image/{sourceImageStoredFileName}/{watermarkImageStoredFileName}");
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                    {
-                        return (default);
-                    }
-                    return await response.Content.ReadAsStringAsync();
-                }
+                var content = JsonSerializer.Serialize(requestImageDto);
+                var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+                var requestResult = await httpClient.PostAsync("api/Image/requestImage", bodyContent);
+                var requestContent = await requestResult.Content.ReadFromJsonAsync<WatermarkedImageDto>();
+
+                if (requestResult.IsSuccessStatusCode)
+                    return requestContent;
                 else
                 {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
+                    var message = requestContent;
+                    throw new Exception($"Http staus code - {requestResult.StatusCode}, Message - {message}");
                 }
+                
             }
             catch (Exception)
             {
 
                 throw;
             }
+            
+                
         }
 
         public async Task<UploadImagesDto> UploadImages(IBrowserFile browserFile)
         {
             try
             {
-                var fileContent = new StreamContent(browserFile.OpenReadStream(maxAllowedSize: 512000 * 2));
+                var fileContent = new StreamContent(browserFile.OpenReadStream(maxAllowedSize: 1000000 * 5));
                 fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(browserFile.ContentType);
                 var content = new MultipartFormDataContent();
                 content.Add(content: fileContent, name: "file", fileName: browserFile.Name);

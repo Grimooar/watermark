@@ -12,14 +12,21 @@ namespace Watermark.Web.Controls
         public UploadImagesDto SourceImage { get; set; }
         [Parameter]
         public UploadImagesDto WatermarkImage { get; set; }
+        [Parameter]
+        public int WatermarkStyle { get; set; }
 
-        private string ResultImageBase64String { get; set; }
+        private WatermarkedImageDto WatermarkedImageDto { get; set; }
         private async Task RequestWatermarkedImage()
         {
             if ((WatermarkImage == null || WatermarkImage.ErrorCode != 0) ||
                 (SourceImage == null || SourceImage.ErrorCode != 0))
                 return;
-            ResultImageBase64String = await ImageService.RequestImage(SourceImage.StoredFileName, WatermarkImage.StoredFileName);
+            WatermarkedImageDto = await ImageService.RequestImage(new RequestImageDto
+            {
+                SourceImageStoredFileName = SourceImage.StoredFileName,
+                WatermarkImageStoredFileName = WatermarkImage.StoredFileName,
+                WatermarkStyle = WatermarkStyle
+            });
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Watermark.Web.Pages
         [Inject]
         public IImageService ImageService { get; set; }
 
+        private int WatermarkStyle { get; set; } = 1;
         private UploadImagesDto SourceImage { get; set; }
         private UploadImagesDto WatermarkImage { get; set; }
         private string ErrorMessage { get; set; }
@@ -45,7 +46,7 @@ namespace Watermark.Web.Pages
             {
                 var image = await ImageService.UploadImages(file);
                 if (image.ErrorCode != 0)
-                    ErrorMessage = image.ErrorCode.ToString();
+                    await HandleImageUploadError(image.ErrorCode);
                 return image;
             }
             catch (Exception ex)
@@ -63,6 +64,24 @@ namespace Watermark.Web.Pages
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
+            }
+        }
+        private async Task HandleImageUploadError(int errorCode)
+        {
+            switch (errorCode)
+            {
+                case 1: 
+                    ErrorMessage = "Error 1: No Image was uploaded";
+                    break;
+                case 2:
+                    ErrorMessage = "Error 2: File is too big";
+                    break;
+                case 3:
+                    ErrorMessage = "Error 3: Internal server error";
+                    break;
+                case 4: 
+                    ErrorMessage = "Error 4: Uploaded file is unsupported type";
+                    break;
             }
         }
     }

@@ -58,6 +58,8 @@ namespace WatermarkApi.Service
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken(
+                issuer: authOptions.Issuer,
+                audience: authOptions.Audience,
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(Convert.ToDouble(authOptions.Lifetime)),
                 signingCredentials: signingCredentials);

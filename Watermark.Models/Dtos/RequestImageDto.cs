@@ -13,5 +13,7 @@ namespace Watermark.Models.Dtos
         public string SourceImageStoredFileName { get; set; }
         [Required]
         public string WatermarkImageStoredFileName { get; set; }
+        [Required]
+        public int WatermarkStyle { get; set; }
     }
 }
