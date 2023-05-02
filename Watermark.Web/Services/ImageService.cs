@@ -4,16 +4,19 @@ using Watermark.Models.Dtos;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Text.Json;
 using System.Text;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Watermark.Web.Services
 {
     public class ImageService : IImageService
     {
         private readonly HttpClient httpClient;
+        private readonly AuthenticationStateProvider authenticationStateProvider;
 
-        public ImageService(HttpClient httpClient)
+        public ImageService(HttpClient httpClient, AuthenticationStateProvider authenticationStateProvider)
         {
             this.httpClient = httpClient;
+            this.authenticationStateProvider = authenticationStateProvider;
         }
 
         public async Task DeleteImages(string storedFileName)
@@ -64,7 +67,12 @@ namespace Watermark.Web.Services
         {
             try
             {
-                var fileContent = new StreamContent(browserFile.OpenReadStream(maxAllowedSize: 1000000 * 5));
+                var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+                int maxAllowedSize = 1000000;
+                if (authState.User.Identity.IsAuthenticated)
+                    maxAllowedSize *= 5;
+
+                var fileContent = new StreamContent(browserFile.OpenReadStream(maxAllowedSize: maxAllowedSize));
                 fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(browserFile.ContentType);
                 var content = new MultipartFormDataContent();
                 content.Add(content: fileContent, name: "file", fileName: browserFile.Name);

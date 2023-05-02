@@ -15,13 +15,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Builder;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = new ConfigurationManager().AddJsonFile("appsettings.json").Build();
-builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("JWTSettings"));
-var authOptions = configuration.GetSection("AuthOptions").Get<AuthOptions>();
-
-
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -50,10 +47,9 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     options.Password.RequireUppercase = false;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddSingleton(authOptions);
 builder.Services.AddScoped<AuthService>();
 
-
+var jwtSettings = builder.Configuration.GetSection("JWTSettings");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -65,12 +61,13 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = authOptions.Issuer,
         ValidateAudience = true,
-        ValidAudience = authOptions.Audience,
         ValidateLifetime = true,
-        IssuerSigningKey = authOptions.GetSymmetricSecurityKey(authOptions.Key),
-        ValidateIssuerSigningKey = true
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["validIssuer"],
+        ValidAudience = jwtSettings["validAudience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["securityKey"]))
     };
 });
 builder.Services.AddSwaggerGen(c =>

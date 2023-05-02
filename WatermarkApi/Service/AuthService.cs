@@ -11,15 +11,15 @@ namespace WatermarkApi.Service
 {
     public class AuthService
     {
-        private readonly AuthOptions authOptions;
         private readonly UserManager<User> userManager;
         private readonly IConfiguration configuration;
+        private readonly IConfigurationSection jwtSettings;
 
-        public AuthService(IOptions<AuthOptions> authOptions, UserManager<User> userManager, IConfiguration configuration)
+        public AuthService(UserManager<User> userManager, IConfiguration configuration)
         {
-            this.authOptions = authOptions.Value;
             this.userManager = userManager;
             this.configuration = configuration;
+            jwtSettings = configuration.GetSection("JWTSettings");
         }
         public async Task<string?> Login(LoginDto loginDto)
         {
@@ -40,8 +40,7 @@ namespace WatermarkApi.Service
 
         private SigningCredentials GetSigningCredentials()
         {
-            var authOptions = configuration.GetSection("AuthOptions").Get<AuthOptions>();
-            var key = Encoding.UTF8.GetBytes(authOptions.Key);
+            var key = Encoding.UTF8.GetBytes(jwtSettings["securityKey"]);
             var secret = new SymmetricSecurityKey(key);
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
@@ -58,10 +57,10 @@ namespace WatermarkApi.Service
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken(
-                issuer: authOptions.Issuer,
-                audience: authOptions.Audience,
+                issuer: jwtSettings["validIssuer"],
+                audience: jwtSettings["validAudience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(authOptions.Lifetime)),
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expiryInMinutes"])),
                 signingCredentials: signingCredentials);
 
             return tokenOptions;

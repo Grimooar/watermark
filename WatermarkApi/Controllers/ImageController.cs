@@ -34,7 +34,7 @@ namespace WatermarkApi.Controllers
             if (HttpContext.User.Identity.IsAuthenticated)
                 maxFileSize *= 5;
             
-            string[] permittedExtensoins = { ".jpeg", ".png" };
+            string[] permittedExtensoins = { ".jpeg", ".png", "jpg" };
 
             var uploadResult = new UploadImagesDto();
             
