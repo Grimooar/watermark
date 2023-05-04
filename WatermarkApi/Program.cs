@@ -27,8 +27,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-builder.Services.AddDbContext<DataDbContext>(options => options.UseSqlite("Filename=MyTestedDb.db"));
-builder.Services.AddDbContext<ApplicationDbContext>(db => db.UseSqlite("Data Source=ApplicationDb.db"));
+builder.Services.AddDbContext<DataDbContext>(options => options.UseSqlite("Filename=ImagesExpireDates.db"));
+builder.Services.AddDbContext<ApplicationDbContext>(db => db.UseSqlite("Data Source=UserData.db"));
 builder.Services.AddScoped<IKirelGenericEntityFrameworkRepository<int, User>, KirelGenericEntityFrameworkRepository<int, User, ApplicationDbContext>>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IImageService, ImageService>();
@@ -113,7 +113,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }   
 app.UseCors(policy =>
-    policy.WithOrigins("http://localhost:7092", "https://localhost:7092")
+    policy.AllowAnyOrigin()
     .AllowAnyMethod()
     .AllowAnyHeader());
 

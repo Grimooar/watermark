@@ -12,7 +12,6 @@ namespace WatermarkApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ImageController : ControllerBase
     {
         private readonly IWebHostEnvironment env;
@@ -34,7 +33,7 @@ namespace WatermarkApi.Controllers
             if (HttpContext.User.Identity.IsAuthenticated)
                 maxFileSize *= 5;
             
-            string[] permittedExtensoins = { ".jpeg", ".png", "jpg" };
+            string[] permittedExtensoins = { ".jpeg", ".png", ".jpg" };
 
             var uploadResult = new UploadImagesDto();
             
@@ -46,18 +45,18 @@ namespace WatermarkApi.Controllers
             
             if (string.IsNullOrEmpty(ext) || !permittedExtensoins.Contains(ext))
             {
-                logger.LogInformation($"{trustedFileNameForDisplay} file extension is not .png or .jpeg");
-                uploadResult.ErrorCode = 4;
+                logger.LogInformation($"{trustedFileNameForDisplay} file extension is not .png, .jpeg or .jpg");
+                uploadResult.ErrorMessage = "Непідтримуваний тип файлу.";
             }
             else if (file.Length == 0)
             {
                 logger.LogInformation($"{trustedFileNameForDisplay} length is 0 (Err: 1)");
-                uploadResult.ErrorCode = 1;
+                uploadResult.ErrorMessage = "Файл пустий або не завантажений.";
             }
             else if (file.Length > maxFileSize)
             {
                 logger.LogInformation($"{trustedFileNameForDisplay} of {file.Length} bytes is larger than the limit of {maxFileSize} bytes (Err: 2)");
-                uploadResult.ErrorCode = 2;
+                uploadResult.ErrorMessage = "Файл занадто великий";
             }
             else
             {

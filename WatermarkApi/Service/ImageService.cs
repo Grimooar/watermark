@@ -45,7 +45,7 @@ namespace WatermarkApi.Service
             catch (IOException ex)
             {
                 logger.LogError($"{trustedFileNameForDisplay} error in upload (Err: 3): {ex.Message}");
-                uploadResult.ErrorCode = 3;
+                uploadResult.ErrorMessage = "Внутрішня помилка серверу";
             }
         }
         public async Task SaveImageToDb(string storedFileName)
