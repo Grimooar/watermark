@@ -392,3 +392,6 @@ WatermarkApi/ApplicationDb.db-shm
 WatermarkApi/ApplicationDb.db-wal
 /WatermarkApi/ApplicationDb.db-shm
 /WatermarkApi/ApplicationDb.db-wal
+/WatermarkApi/UserData.db-shm
+*.db-wal
+*.db-shm
