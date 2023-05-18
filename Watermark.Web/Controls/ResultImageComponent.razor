@@ -1,5 +1,19 @@
-﻿<button class="btn btn-primary" @onclick="@RequestWatermarkedImage">Process</button>
+﻿@if (SourceImageStoredFileName == null || WatermarkImageStoredFileName == null || WatermarkStyle == null)
+{
+    <h2>Крок 4: 
+        <button class="btn btn-primary btn-lg disabled">Нанести</button>
+    </h2>
+    <br />
+}
+else
+{
+    <h2>Крок 4:
+        <button class="btn btn-primary btn-lg" @onclick="@RequestWatermarkedImage">Нанести</button>
+    </h2>
+    <br />
+}
+
 @if (WatermarkedImageDto != null)
 {
-    <img src="data:image/png;base64, @WatermarkedImageDto.ImageBase64Data">
+    <img src="data:image/png;base64, @WatermarkedImageDto.ImageBase64Data" style="max-height:500px;max-width:1000px; margin: 6px">
 }

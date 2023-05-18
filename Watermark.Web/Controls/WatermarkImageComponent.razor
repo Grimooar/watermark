@@ -1,0 +1,12 @@
+﻿<div style="margin-top:5px">
+    <h2>Крок 2: Завантажте водяний знак</h2>
+    @if (ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <p>@ErrorMessage</p>
+        </div>
+    }
+    <img @ref="previewWatermarkImageElem" class="@imageClass" style="max-width:200px;max-height:200px;margin-bottom:10px" />
+    <br />
+    <InputFile @ref="inputWatermarkImageFile" OnChange="@UploadWatermarkImage" class="form-control-file" id="controlFile2" />
+</div>

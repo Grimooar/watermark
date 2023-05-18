@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Watermark.Web", "Watermark.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Watermark.Models", "Watermark.Models\Watermark.Models.csproj", "{BCA59035-A87F-4289-A6AD-467699BA445A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watermark.Bot", "Watermark.Bot\Watermark.Bot.csproj", "{76E1D899-3436-49D4-AB98-DD735214F3ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Watermark.Bot", "Watermark.Bot\Watermark.Bot.csproj", "{76E1D899-3436-49D4-AB98-DD735214F3ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

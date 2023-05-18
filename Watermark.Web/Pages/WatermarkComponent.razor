@@ -3,65 +3,82 @@
 @using Watermark.Web.Services.Contracts;
 @using Watermark.Models.Dtos;
 
-@if (ErrorMessage != null)
-{
-    <div class="alert alert-danger" role="alert">
-        <p>@ErrorMessage</p>
-    </div>
-}
+<PageTitle>Головна</PageTitle>
 
-<div class="card card-body bg-light">
+<div class="card card-body bg-light w-75 m-auto">
     <div class="container">
-        <div class="row justify-content-around" style="padding-bottom:10px">
-            <div class="col-3">
-                <img @ref="previewSourceImageElem" class="mx-auto d-block" style="max-width:200px;max-height:200px;" /><br />
-                <label for="controlFile1">Submit source image</label>
-                <InputFile @ref="inputSourceImageFile" OnChange="@UploadSourceImage" class="form-control-file" id="controlFile1" />
-            </div>
-            <div class="col-3">
-                <img @ref="previewWatermarkImageElem" style="max-width:200px;max-height:200px" /><br />
-                <label for="controlFile2">Submit watermark</label>
-                <InputFile @ref="inputWatermarkImageFile" OnChange="@UploadWatermarkImage" class="form-control-file" id="controlFile2" />
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <label class="col-2 text-center">Watermark postition</label>
-            <div class="col-2">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" checked="@(WatermarkStyle == 1)" @onclick="() => WatermarkStyle = 1">
-                    <label class="form-check-label" for="gridRadios1">
-                        All image
-                    </label>
+        <SourceImageComponent OnImageUploadedSuccess="OnSourceImageFileNameChanged" />
+        @if (sourceImageStoredFileName != null)
+        {
+            <WatermarkImageComponent OnImageUploadedSuccess="OnWatermarkImageFileNameChanged"></WatermarkImageComponent>
+        }
+        @if (sourceImageStoredFileName != null || watermarkImageStoredFileName != null)
+        {
+            <div style="margin-top:5px">
+                <h2>Крок 3: Виберіть розташування водяного знаку</h2>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="mainWatermarkStyle" id="inlineRadio1" checked="@(watermarkStyle == 1)" @onclick="() => watermarkStyle = 1">
+                    <label class="form-check-label" for="inlineRadio1">По всій площі</label>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" checked="@(WatermarkStyle == 2)" @onclick="() => WatermarkStyle = 2">
-                    <label class="form-check-label" for="gridRadios2">
-                        Right bottom corner
-                    </label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="mainWatermarkStyle" id="inlineRadio2" checked="@(watermarkStyle >= 2 && watermarkStyle <= 5)" @onclick="() => watermarkStyle = 2">
+                    <label class="form-check-label" for="inlineRadio2">У кутку</label>
                 </div>
-                <div class="form-check disabled">
-                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" checked="@(WatermarkStyle == 3)" @onclick="() => WatermarkStyle = 3">
-                    <label class="form-check-label" for="gridRadios3">
-                        Left upper corner
-                    </label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="mainWatermarkStyle" id="inlineRadio7" checked="@(watermarkStyle >= 6 && watermarkStyle <= 10)" @onclick="() => watermarkStyle = 6">
+                    <label class="form-check-label" for="inlineRadio7">По центру</label>
                 </div>
+                @if (watermarkStyle >= 2 && watermarkStyle <= 5)
+                {
+                    <div style="margin-left:4rem">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio3" checked="@(watermarkStyle == 2)" @onclick="() => watermarkStyle = 2">
+                            <label class="form-check-label" for="inlineRadio3">Правий нижній</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio4" checked="@(watermarkStyle == 3)" @onclick="() => watermarkStyle = 3">
+                            <label class="form-check-label" for="inlineRadio4">Правий верхній</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio5" checked="@(watermarkStyle == 4)" @onclick="() => watermarkStyle = 4">
+                            <label class="form-check-label" for="inlineRadio5">Лівий нижній</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio6" checked="@(watermarkStyle == 5)" @onclick="() => watermarkStyle = 5">
+                            <label class="form-check-label" for="inlineRadio6">Лівий верхній</label>
+                        </div>
+                    </div>
+                }
+                @if (watermarkStyle >= 6 && watermarkStyle <= 10)
+                {
+                    <div style="margin-left:4rem">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio8" checked="@(watermarkStyle == 7)" @onclick="() => watermarkStyle = 7">
+                            <label class="form-check-label" for="inlineRadio8">Зліва</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio9" checked="@(watermarkStyle == 8)" @onclick="() => watermarkStyle = 8">
+                            <label class="form-check-label" for="inlineRadio9">Зверху</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio10" checked="@(watermarkStyle == 9)" @onclick="() => watermarkStyle = 9">
+                            <label class="form-check-label" for="inlineRadio10">Справа</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="subWatermarkStyle" id="inlineRadio11" checked="@(watermarkStyle == 10)" @onclick="() => watermarkStyle = 10">
+                            <label class="form-check-label" for="inlineRadio11">Знизу</label>
+                        </div>
+                    </div>
+                }
             </div>
-        </div>
+            
+            <br />
+            <div style="margin-top:5px">
+                <ResultImageComponent SourceImageStoredFileName=@sourceImageStoredFileName
+                                  WatermarkImageStoredFileName=@watermarkImageStoredFileName
+                                  WatermarkStyle=@watermarkStyle />
+            </div>
+        }
+        
     </div>
-
-
-<p>@WatermarkStyle</p>
-@if (ErrorMessage != null)
-{
-    <p>@ErrorMessage</p>
-}
-@if (SourceImage != null && WatermarkImage != null)
-{
-    <p>Source Image UnSafe Name: @SourceImage.FileName</p>
-    <p>Source Image Safe Name: @SourceImage.StoredFileName</p>
-    <br />
-    <p>Watermark Image UnSafe Name: @WatermarkImage.FileName</p>
-    <p>Watermark Image Safe Name: @WatermarkImage.StoredFileName</p>
-    <ResultImageComponent SourceImage="@SourceImage" WatermarkImage="@WatermarkImage" WatermarkStyle="@WatermarkStyle" />
-}
 </div>

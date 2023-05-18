@@ -31,5 +31,9 @@ namespace Watermark.Web.Pages
                 NavigationManager.NavigateTo("/");
             }
         }
+        void RedirectToRegister()
+        {
+            NavigationManager.NavigateTo("/Registration");
+        }
     }
 }

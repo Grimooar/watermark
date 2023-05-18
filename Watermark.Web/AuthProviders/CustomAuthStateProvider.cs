@@ -23,6 +23,15 @@ namespace Watermark.Web.AuthProviders
             var token = await localStorage.GetItemAsync<string>("authToken");
             if (string.IsNullOrWhiteSpace(token))
                 return anonymous;
+            //Check if JwtToken has expired
+            var claims = JwtParser.ParseClaimsFromJwt(token);
+            var expiry = claims.Where(claim => claim.Type.Equals("exp")).FirstOrDefault();
+            if (expiry == null)
+                return anonymous;
+
+            var dateTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiry.Value));
+            if (dateTime.UtcDateTime <= DateTimeOffset.UtcNow)
+                return anonymous;
 
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
 

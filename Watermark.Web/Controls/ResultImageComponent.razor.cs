@@ -9,22 +9,21 @@ namespace Watermark.Web.Controls
         [Inject]
         public IImageService ImageService { get; set; }
         [Parameter]
-        public UploadImagesDto SourceImage { get; set; }
+        public string SourceImageStoredFileName { get; set; }
         [Parameter]
-        public UploadImagesDto WatermarkImage { get; set; }
+        public string WatermarkImageStoredFileName { get; set; }
         [Parameter]
         public int WatermarkStyle { get; set; }
 
         private WatermarkedImageDto WatermarkedImageDto { get; set; }
         private async Task RequestWatermarkedImage()
         {
-            if ((WatermarkImage == null || WatermarkImage.ErrorCode != 0) ||
-                (SourceImage == null || SourceImage.ErrorCode != 0))
+            if (SourceImageStoredFileName == null || WatermarkImageStoredFileName == null)
                 return;
             WatermarkedImageDto = await ImageService.RequestImage(new RequestImageDto
             {
-                SourceImageStoredFileName = SourceImage.StoredFileName,
-                WatermarkImageStoredFileName = WatermarkImage.StoredFileName,
+                SourceImageStoredFileName = this.SourceImageStoredFileName,
+                WatermarkImageStoredFileName = this.WatermarkImageStoredFileName,
                 WatermarkStyle = WatermarkStyle
             });
         }

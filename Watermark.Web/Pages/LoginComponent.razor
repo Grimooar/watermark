@@ -1,5 +1,6 @@
 ﻿@page "/login"
-<h3>Login</h3>
+
+<PageTitle>Вхід</PageTitle>
 
 @if (ShowAuthError)
 {
@@ -8,27 +9,22 @@
     </div>
 }
 
-<EditForm Model="loginDto" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
+<EditForm Model="loginDto" OnValidSubmit="ExecuteLogin" class="card card-body bg-light w-50 m-auto">
     <DataAnnotationsValidator />
-    <div class="form-group row">
-        <label for="email" class="col-md-2 col-form-label">Email:</label>
-        <div class="col-md-10">
-            <InputText id="email" class="form-control" @bind-Value="loginDto.Email" />
-            <ValidationMessage For="@(() => loginDto.Email)" />
-        </div>
+    <div class="form-outline mb-4">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" class="form-control" placeholer="Email" @bind-Value="loginDto.Email" />
+        <ValidationMessage For="@(() => loginDto.Email)" />
     </div>
 
-    <div class="form-group row">
-        <label for="password" class="col-md-2 col-form-label">Password:</label>
-        <div class="col-md-10">
-            <InputText type="password" id="password" class="form-control" @bind-Value="loginDto.Password" />
-            <ValidationMessage For="@(() => loginDto.Password)" />
-        </div>
+    <div class="form-outline mb-4">
+        <label for="password" class="form-label">Пароль:</label>
+        <InputText type="password" id="password" placeholer="password" class="form-control" @bind-Value="loginDto.Password" />
+        <ValidationMessage For="@(() => loginDto.Password)" />
     </div>
-
-    <div class="row">
-        <div class="col-md-12 text-right">
-            <button type="submit" class="btn btn-success">Login</button>
-        </div>
+    <button type="submit" class="btn btn-primary btn-block mb-4">Увійти</button>
+    <div class="text-center">
+        <button type="button" class="btn btn-link" @onclick="RedirectToRegister">Реєстрація</button>
     </div>
+    
 </EditForm>

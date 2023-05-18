@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Watermark.Models.Dtos;
 using Watermark.Web.Services.Contracts;
 using Microsoft.JSInterop;
+using Watermark.Web.Controls;
 
 namespace Watermark.Web.Pages
 {
@@ -13,76 +14,17 @@ namespace Watermark.Web.Pages
         [Inject]
         public IImageService ImageService { get; set; }
 
-        private int WatermarkStyle { get; set; } = 1;
-        private UploadImagesDto SourceImage { get; set; }
-        private UploadImagesDto WatermarkImage { get; set; }
-        private string ErrorMessage { get; set; }
+        private string? sourceImageStoredFileName;
+        private string? watermarkImageStoredFileName;
+        private int watermarkStyle = 1;
 
-        private InputFile? inputSourceImageFile;
-        private InputFile? inputWatermarkImageFile;
-        private ElementReference previewSourceImageElem;
-        private ElementReference previewWatermarkImageElem;
-
-        private async Task UploadSourceImage(InputFileChangeEventArgs e)
+        private void OnSourceImageFileNameChanged(string value)
         {
-            if (SourceImage != null && SourceImage.ErrorCode == 0)
-                await DeleteImage(SourceImage.StoredFileName);
-
-            await JS.InvokeVoidAsync("previewImage", inputSourceImageFile!.Element, previewSourceImageElem);
-            SourceImage = await UploadImage(e.File);
-
+            sourceImageStoredFileName = value;
         }
-        private async Task UploadWatermarkImage(InputFileChangeEventArgs e)
+        private void OnWatermarkImageFileNameChanged(string value)
         {
-            if (WatermarkImage != null && WatermarkImage.ErrorCode == 0)
-                await DeleteImage(WatermarkImage.StoredFileName);
-
-            await JS.InvokeVoidAsync("previewImage", inputWatermarkImageFile!.Element, previewWatermarkImageElem);
-            WatermarkImage = await UploadImage(e.File);
-        }
-        private async Task<UploadImagesDto> UploadImage(IBrowserFile file)
-        {
-            try
-            {
-                var image = await ImageService.UploadImages(file);
-                if (image.ErrorCode != 0)
-                    await HandleImageUploadError(image.ErrorCode);
-                return image;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
-            return default(UploadImagesDto);
-        }
-        private async Task DeleteImage(string storedFileName)
-        {
-            try
-            {
-                await ImageService.DeleteImages(storedFileName);
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-            }
-        }
-        private async Task HandleImageUploadError(int errorCode)
-        {
-            switch (errorCode)
-            {
-                case 1: 
-                    ErrorMessage = "Error 1: No Image was uploaded";
-                    break;
-                case 2:
-                    ErrorMessage = "Error 2: File is too big";
-                    break;
-                case 3:
-                    ErrorMessage = "Error 3: Internal server error";
-                    break;
-                case 4: 
-                    ErrorMessage = "Error 4: Uploaded file is unsupported type";
-                    break;
-            }
+            watermarkImageStoredFileName = value;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace WatermarkApi.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<UploadImagesDto>> UploadImages([FromForm] IFormFile file)
+        public async Task<ActionResult<UploadImagesDto>> UploadImage([FromForm] IFormFile file)
         {
             var resourcePath = new Uri($"{Request.Scheme}://{Request.Host}/");
             var maxFileSize = 1000000;

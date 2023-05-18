@@ -45,7 +45,7 @@ namespace WatermarkApi.Controllers
             var token = await authService.Login(loginDto);
 
             if (token == null)
-                return Unauthorized(new AuthResponseDto { ErrorMessage = "Invalid Authentication" });
+                return Unauthorized(new AuthResponseDto { ErrorMessage = "Неправильні дані користувача" });
 
             return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token = token });
         }

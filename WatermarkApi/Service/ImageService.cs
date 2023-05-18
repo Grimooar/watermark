@@ -80,7 +80,9 @@ namespace WatermarkApi.Service
             {
                 var fullPath = Path.Combine(path, expiredImage.StoredName);
                 FileInfo file = new FileInfo(fullPath);
-                file.Delete();
+                if (file.Exists)
+                    file.Delete();
+
                 _context.StoredImages.Remove(expiredImage);
             }
             await _context.SaveChangesAsync();
@@ -123,7 +125,7 @@ namespace WatermarkApi.Service
             // Draw the original image onto the new Bitmap
             graphics.DrawImage(sourceImageBitmap, 0, 0, sourceImageBitmap.Width, sourceImageBitmap.Height);
 
-            //Resize watermark to 1/10 of source image
+            //Resize watermark to 1/3 of source image
             int watermarkNewWidth = sourceImageBitmap.Width / 3;
             int watermarkNewHeight = (int)((float)watermarkBitmap.Height * ((float)watermarkNewWidth / (float) watermarkBitmap.Width));
             var resizedWatermarkBitmap = ResizeImage(watermarkBitmap, watermarkNewWidth, watermarkNewHeight);
@@ -134,8 +136,11 @@ namespace WatermarkApi.Service
                 case 1:
                     await ApplyWatermarkAllOverImage(resultBitmap, resizedWatermarkBitmap, graphics);
                     break;
-                case var n when n >= 2 && n <= 3:
+                case var n when n >= 2 && n <= 5:
                     await ApplyWatermarkInCorner(resultBitmap, resizedWatermarkBitmap, graphics, n);
+                    break;
+                case var n when n >= 6 && n <= 10:
+                    await ApplyWatermarkInCenter(resultBitmap, resizedWatermarkBitmap, graphics, n);
                     break;
             }
 
@@ -161,12 +166,20 @@ namespace WatermarkApi.Service
             switch (watermarkPos)
             {
                 case 2: //Bottom right corner
-                    watermarkX = resultBitmap.Width - watermarkBitmap.Width;
-                    watermarkY = resultBitmap.Height - watermarkBitmap.Height;
+                    watermarkX = resultBitmap.Width - watermarkBitmap.Width - (resultBitmap.Width / 10);
+                    watermarkY = resultBitmap.Height - watermarkBitmap.Height - (resultBitmap.Height / 10);
                     break;
-                case 3: //Upper left corner
-                    watermarkX = 0;
-                    watermarkY = 0;
+                case 3: //Upper right corner
+                    watermarkX = resultBitmap.Width - watermarkBitmap.Width - (resultBitmap.Width / 10);
+                    watermarkY = 0 + (resultBitmap.Height / 10);
+                    break;
+                case 4: //Bottom left corner
+                    watermarkX = 0 + (resultBitmap.Width / 10);
+                    watermarkY = resultBitmap.Height - watermarkBitmap.Height - (resultBitmap.Height / 10);
+                    break;
+                case 5: //Upper left corner
+                    watermarkX = 0 + (resultBitmap.Width / 10);
+                    watermarkY = 0 + (resultBitmap.Height / 10);
                     break;
                 default:
                     watermarkX = default(int);
@@ -174,6 +187,38 @@ namespace WatermarkApi.Service
                     break;
             }
 
+            graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);
+        }
+        private async Task ApplyWatermarkInCenter(Bitmap resultBitmap, Bitmap watermarkBitmap, Graphics graphics, int watermarkPos)
+        {
+            int watermarkX, watermarkY;
+            switch (watermarkPos)
+            {
+                case 6: //Center center
+                    watermarkX = (resultBitmap.Width / 2) - (watermarkBitmap.Width / 2);
+                    watermarkY = (resultBitmap.Height / 2) - (watermarkBitmap.Height / 2);
+                    break;
+                case 7: //Center left
+                    watermarkX = 0 + (resultBitmap.Width / 10);
+                    watermarkY = (resultBitmap.Height / 2) - (watermarkBitmap.Height / 2);
+                    break;
+                case 8: //Center up
+                    watermarkX = (resultBitmap.Width / 2) - (watermarkBitmap.Height / 2);
+                    watermarkY = 0 + (resultBitmap.Width / 10);
+                    break;
+                case 9: //Center right
+                    watermarkX = resultBitmap.Width - watermarkBitmap.Width - (resultBitmap.Width / 10);
+                    watermarkY = (resultBitmap.Height / 2) - (watermarkBitmap.Height / 2);
+                    break;
+                case 10:
+                    watermarkX = (resultBitmap.Width / 2) - (watermarkBitmap.Width / 2);
+                    watermarkY = resultBitmap.Height - watermarkBitmap.Height - (resultBitmap.Height / 10);
+                    break;
+                default:
+                    watermarkX = default(int);
+                    watermarkY = default(int);
+                    break;
+            }
             graphics.DrawImage(watermarkBitmap, watermarkX, watermarkY, watermarkBitmap.Width, watermarkBitmap.Height);
         }
 

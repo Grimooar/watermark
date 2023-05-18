@@ -1,0 +1,12 @@
+﻿<div>
+    <h2>Крок 1: Завантажте основну картинку</h2>
+    @if (ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <p>@ErrorMessage</p>
+        </div>
+    }
+    <img @ref="previewSourceImageElem" id="thumbnail" class="@imageClass" style="max-width:200px;max-height:200px;margin-bottom:10px" />
+    <br />
+    <InputFile @ref="inputSourceImageFile" OnChange="@UploadSourceImage" class="form-control-file" />
+</div>
