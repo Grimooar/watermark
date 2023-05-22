@@ -28,7 +28,7 @@ namespace Watermark.Bot.Services
 
                     await userDataService.DeleteExpiredUserData();
 
-                    await Task.Delay(new TimeSpan(24, 0, 0)); //6, 0, 0
+                    await Task.Delay(new TimeSpan(24, 0, 0));
                 }
             }
         }

@@ -127,9 +127,9 @@ namespace WatermarkApi.Service
 
             //Resize watermark to 1/3 of source image
             int watermarkNewWidth = sourceImageBitmap.Width / 3;
-            int watermarkNewHeight = (int)((float)watermarkBitmap.Height * ((float)watermarkNewWidth / (float) watermarkBitmap.Width));
+            int watermarkNewHeight = (int)((float)watermarkBitmap.Height * ((float)watermarkNewWidth / (float)watermarkBitmap.Width));
             var resizedWatermarkBitmap = ResizeImage(watermarkBitmap, watermarkNewWidth, watermarkNewHeight);
-            
+
             //Apply watermark to souce image in selected location
             switch (requestImageDto.WatermarkStyle)
             {

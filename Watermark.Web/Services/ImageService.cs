@@ -69,8 +69,16 @@ namespace Watermark.Web.Services
             {
                 var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
                 int maxAllowedSize = 1000000;
+                string loginPrompt = "";
                 if (authState.User.Identity.IsAuthenticated)
+                {
                     maxAllowedSize *= 5;
+                    loginPrompt = " Авторизуйтеся, щоб збільшити ліміт.";
+                }
+                if (browserFile.Size > maxAllowedSize)
+                {
+                    throw new Exception($"Розмір файлу перевищує ліміт в {maxAllowedSize / 1000000}МБ.{loginPrompt}");
+                }
 
                 var fileContent = new StreamContent(browserFile.OpenReadStream(maxAllowedSize: maxAllowedSize));
                 fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(browserFile.ContentType);

@@ -102,6 +102,7 @@ namespace Watermark.Bot.Services
                     await _botClient.SendTextMessageAsync(chatId: message.Chat.Id, 
                         text: "Завантажені вами зображення не були знайдені на сервері.\nСпробуйте відправити їх знову.", 
                         cancellationToken: cancellationToken);
+                    await _userDataService.SetUserState(message.Chat.Id, 0);
                     return null;
                 }
                 else
@@ -139,7 +140,7 @@ namespace Watermark.Bot.Services
             await _botClient.SendPhotoAsync(
                 chatId: message.Chat.Id,
                 photo: new InputOnlineFile(fileStream),
-                caption: "Nice Picture",
+                caption: "@practice2023_bot",
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation($"Send an image to chat {message.Chat.Id}, user {message.Chat.Username}, at {DateTime.Now}");
@@ -227,7 +228,8 @@ namespace Watermark.Bot.Services
                     chatId: message.Chat.Id,
                     text: "Перед нанесенням вашого водяного знаку на зоображення, мені спочатку необхідно отримати і зображення водяного знаку, і зоображення, на яке він буде нанесений, від вас." +
                     "\nПеред їх відправкою використовуйте кнопки з наступного повідомлення для уточненння, що і куди треба нанести." +
-                    "\nПісля відправки обох зображень, натискайте кнопку \"Нанести водяний знак\", щоб отримати результат.",
+                    "\nПісля відправки обох зображень, натискайте кнопку «Нанести водяний знак», щоб отримати результат." +
+                    "\n ‼️Водяний знак необхідно відправляти без стискання‼️",
                     cancellationToken: cancellationToken);
 
                 try
