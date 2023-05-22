@@ -395,3 +395,7 @@ WatermarkApi/ApplicationDb.db-wal
 /WatermarkApi/UserData.db-shm
 *.db-wal
 *.db-shm
+/WatermarkApi/Development/unsafe_uploads
+/WatermarkApi/ImagesExpireDates.db
+/WatermarkApi/UserData.db
+/Watermark.Bot/UserData.db
