@@ -69,11 +69,11 @@ namespace Watermark.Web.Services
             {
                 var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
                 int maxAllowedSize = 1000000;
-                string loginPrompt = "";
+                string loginPrompt = " Авторизуйтеся, щоб збільшити ліміт.";
                 if (authState.User.Identity.IsAuthenticated)
                 {
                     maxAllowedSize *= 5;
-                    loginPrompt = " Авторизуйтеся, щоб збільшити ліміт.";
+                    loginPrompt = "";
                 }
                 if (browserFile.Size > maxAllowedSize)
                 {

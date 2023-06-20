@@ -246,8 +246,5 @@ namespace WatermarkApi.Service
 
             return destImage;
         }
-
-
-
     }
 }
